@@ -7,6 +7,7 @@ import com.example.auth.domain.post.post.entity.Post;
 import com.example.auth.domain.post.post.service.PostService;
 import com.example.auth.global.dto.RsData;
 import com.example.auth.global.exception.ServiceException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -24,6 +25,7 @@ public class ApiV1PostController {
 
     private final PostService postService;
     private final MemberService memberService;
+    private final HttpServletRequest request;
 
     @GetMapping
     public RsData<List<PostDto>> getItems() {
@@ -54,9 +56,8 @@ public class ApiV1PostController {
     }
 
     @DeleteMapping("/{id}")
-    public RsData<Void> delete(@PathVariable long id,
-                               @RequestHeader("Authorization") @NotBlank String credentials) {
-        Member writer = getAuthenticatedWriter(credentials);
+    public RsData<Void> delete(@PathVariable long id) {
+        Member writer = getAuthenticatedWriter();
         Post post = postService.getItem(id).get();
 
         if (!post.getAuthor().getId().equals(writer.getId())) {
@@ -77,9 +78,8 @@ public class ApiV1PostController {
 
     @PutMapping("{id}")
     public RsData<Void> modify(@PathVariable long id,
-                               @RequestBody @Valid ModifyReqBody body,
-                               @RequestHeader("Authorization") @NotBlank String credentials) {
-        Member writer = getAuthenticatedWriter(credentials);
+                               @RequestBody @Valid ModifyReqBody body) {
+        Member writer = getAuthenticatedWriter();
         Post post = postService.getItem(id).get();
 
         if (!post.getAuthor().getId().equals(writer.getId())) {
@@ -100,10 +100,9 @@ public class ApiV1PostController {
     }
 
     @PostMapping
-    public RsData<PostDto> write(@RequestBody @Valid WriteReqBody body,
-                                 @RequestHeader("Authorization") @NotBlank String credentials) {
+    public RsData<PostDto> write(@RequestBody @Valid WriteReqBody body) {
 
-        Member writer = getAuthenticatedWriter(credentials);
+        Member writer = getAuthenticatedWriter();
         Post post = postService.write(writer, body.title(), body.content());
 
         return new RsData<>(
@@ -113,8 +112,11 @@ public class ApiV1PostController {
         );
     }
 
-    private Member getAuthenticatedWriter(String credentials) {
-        String[] credBits = credentials.replaceAll("Bearer ","").split("/");
+    private Member getAuthenticatedWriter() {
+
+        String authorizationValue = request.getHeader("Authorization");
+
+        String[] credBits = authorizationValue.replaceAll("Bearer ","").split("/");
         long authorId = Long.parseLong(credBits[0]);
         String password = credBits[1];
 
