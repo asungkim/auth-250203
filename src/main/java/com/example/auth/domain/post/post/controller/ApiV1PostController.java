@@ -114,7 +114,7 @@ public class ApiV1PostController {
     }
 
     private Member getAuthenticatedWriter(String credentials) {
-        String[] credBits = credentials.split("/");
+        String[] credBits = credentials.replaceAll("Bearer ","").split("/");
         long authorId = Long.parseLong(credBits[0]);
         String password = credBits[1];
 
