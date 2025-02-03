@@ -53,9 +53,23 @@ public class ApiV1PostController {
         );
     }
 
+    record DeleteReqBody(@NotNull Long authorId,
+                         @NotBlank @Length(min = 3) String password) {
+    }
+
     @DeleteMapping("/{id}")
-    public RsData<Void> delete(@PathVariable long id) {
+    public RsData<Void> delete(@PathVariable long id,
+                               @RequestHeader long authorId,
+                               @RequestHeader String password) {
+        Member writer = memberService.findById(authorId).get();
+        if (!password.equals(writer.getPassword())) {
+            throw new ServiceException("401-1", "비밀번호가 일치하지 않습니다.");
+        }
+
         Post post = postService.getItem(id).get();
+        if (!post.getAuthor().getId().equals(authorId)) {
+            throw new ServiceException("403-1", "자신이 작성한 글만 수정 가능합니다.");
+        }
         postService.delete(post);
 
         return new RsData<>(
