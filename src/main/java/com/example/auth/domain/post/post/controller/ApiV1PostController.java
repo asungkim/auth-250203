@@ -59,15 +59,12 @@ public class ApiV1PostController {
 
     @DeleteMapping("/{id}")
     public RsData<Void> delete(@PathVariable long id,
-                               @RequestHeader @NotNull long authorId,
-                               @RequestHeader @NotBlank String password) {
-        Member writer = memberService.findById(authorId).get();
-        if (!password.equals(writer.getPassword())) {
-            throw new ServiceException("401-1", "비밀번호가 일치하지 않습니다.");
-        }
+                               @RequestHeader @NotBlank String credentials) {
+        Member writer = getAuthenticatedWriter(credentials);
 
         Post post = postService.getItem(id).get();
-        if (!post.getAuthor().getId().equals(authorId)) {
+
+        if (!post.getAuthor().getId().equals(writer.getId())) {
             throw new ServiceException("403-1", "자신이 작성한 글만 수정 가능합니다.");
         }
         postService.delete(post);
@@ -86,17 +83,14 @@ public class ApiV1PostController {
     @PutMapping("{id}")
     public RsData<Void> modify(@PathVariable long id,
                                @RequestBody @Valid ModifyReqBody body,
-                               @RequestHeader @NotNull long authorId,
-                               @RequestHeader @NotBlank String password) {
+                               @RequestHeader @NotBlank String credentials) {
 
-        Member writer = memberService.findById(authorId).get();
+        Member writer = getAuthenticatedWriter(credentials);
 
-        if (!password.equals(writer.getPassword())) {
-            throw new ServiceException("401-1", "비밀번호가 일치하지 않습니다.");
-        }
+
 
         Post post = postService.getItem(id).get();
-        if (!post.getAuthor().getId().equals(authorId)) {
+        if (!post.getAuthor().getId().equals(writer.getId())) {
             throw new ServiceException("403-1", "자신이 작성한 글만 수정 가능합니다.");
         }
 
@@ -110,19 +104,14 @@ public class ApiV1PostController {
 
     record WriteReqBody(@NotBlank @Length(min = 3) String title,
                         @NotBlank @Length(min = 3) String content
-) {
+    ) {
     }
 
     @PostMapping
     public RsData<PostDto> write(@RequestBody @Valid WriteReqBody body,
-                                @RequestHeader @NotNull long authorId,
-                                 @RequestHeader @NotBlank String password) {
+                                 @RequestHeader @NotBlank String credentials) {
 
-        Member writer = memberService.findById(authorId).get();
-
-        if (!password.equals(writer.getPassword())) {
-            throw new ServiceException("401-1", "비밀번호가 일치하지 않습니다.");
-        }
+        Member writer = getAuthenticatedWriter(credentials);
         Post post = postService.write(writer, body.title(), body.content());
 
         return new RsData<>(
@@ -130,5 +119,19 @@ public class ApiV1PostController {
                 "글 작성이 완료되었습니다.",
                 new PostDto(post)
         );
+    }
+
+    private Member getAuthenticatedWriter(String credentials) {
+        String[] credBits = credentials.split("/");
+        long authorId = Long.parseLong(credBits[0]);
+        String password = credBits[1];
+
+        Member writer = memberService.findById(authorId).get();
+
+        if (!password.equals(writer.getPassword())) {
+            throw new ServiceException("401-1", "비밀번호가 일치하지 않습니다.");
+        }
+
+        return writer;
     }
 }
