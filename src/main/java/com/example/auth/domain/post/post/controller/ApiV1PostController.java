@@ -10,7 +10,6 @@ import com.example.auth.global.exception.ServiceException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.web.bind.annotation.*;
@@ -116,8 +115,8 @@ public class ApiV1PostController {
     private Member getAuthenticatedWriter() {
         String authorizationValue = request.getHeader("Authorization");
 
-        String password2 = authorizationValue.replaceAll("Bearer ","");
-        Optional<Member> opWriter = memberService.findByPassword2(password2);
+        String apiKey = authorizationValue.replaceAll("Bearer ","");
+        Optional<Member> opWriter = memberService.findByApiKey(apiKey);
 
         if (opWriter.isEmpty()) {
             throw new ServiceException("401-1", "비밀번호가 일치하지 않습니다.");
