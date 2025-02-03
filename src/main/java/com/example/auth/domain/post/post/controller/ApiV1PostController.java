@@ -53,15 +53,10 @@ public class ApiV1PostController {
         );
     }
 
-    record DeleteReqBody(@NotNull Long authorId,
-                         @NotBlank @Length(min = 3) String password) {
-    }
-
     @DeleteMapping("/{id}")
     public RsData<Void> delete(@PathVariable long id,
-                               @RequestHeader @NotBlank String credentials) {
+                               @RequestHeader("Authorization") @NotBlank String credentials) {
         Member writer = getAuthenticatedWriter(credentials);
-
         Post post = postService.getItem(id).get();
 
         if (!post.getAuthor().getId().equals(writer.getId())) {
@@ -83,13 +78,10 @@ public class ApiV1PostController {
     @PutMapping("{id}")
     public RsData<Void> modify(@PathVariable long id,
                                @RequestBody @Valid ModifyReqBody body,
-                               @RequestHeader @NotBlank String credentials) {
-
+                               @RequestHeader("Authorization") @NotBlank String credentials) {
         Member writer = getAuthenticatedWriter(credentials);
-
-
-
         Post post = postService.getItem(id).get();
+
         if (!post.getAuthor().getId().equals(writer.getId())) {
             throw new ServiceException("403-1", "자신이 작성한 글만 수정 가능합니다.");
         }
@@ -109,7 +101,7 @@ public class ApiV1PostController {
 
     @PostMapping
     public RsData<PostDto> write(@RequestBody @Valid WriteReqBody body,
-                                 @RequestHeader @NotBlank String credentials) {
+                                 @RequestHeader("Authorization") @NotBlank String credentials) {
 
         Member writer = getAuthenticatedWriter(credentials);
         Post post = postService.write(writer, body.title(), body.content());
