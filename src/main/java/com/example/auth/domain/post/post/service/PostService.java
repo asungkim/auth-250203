@@ -1,6 +1,7 @@
 package com.example.auth.domain.post.post.service;
 
 import com.example.auth.domain.member.member.entity.Member;
+import com.example.auth.domain.member.member.repository.MemberRepository;
 import com.example.auth.domain.post.post.entity.Post;
 import com.example.auth.domain.post.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import java.util.Optional;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final MemberRepository memberRepository;
 
     public Post write(Member author, String title, String content) {
 
