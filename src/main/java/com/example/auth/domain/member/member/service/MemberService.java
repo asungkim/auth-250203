@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +20,7 @@ public class MemberService {
         Member member = Member.builder()
                 .username(username)
                 .password(password)
+                .password2(UUID.randomUUID().toString())
                 .nickname(nickname)
                 .build();
 

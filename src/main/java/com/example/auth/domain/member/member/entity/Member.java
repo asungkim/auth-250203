@@ -20,6 +20,8 @@ public class Member extends BaseTime {
     private String username;
     @Column(length = 100)
     private String password;
+
+    private String password2;
     @Column(length = 100)
     private String nickname;
 

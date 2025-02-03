@@ -122,7 +122,7 @@ public class ApiV1PostController {
 
         Member writer = memberService.findById(authorId).get();
 
-        if (!password.equals(writer.getPassword())) {
+        if (!password.equals(writer.getPassword2())) {
             throw new ServiceException("401-1", "비밀번호가 일치하지 않습니다.");
         }
 
