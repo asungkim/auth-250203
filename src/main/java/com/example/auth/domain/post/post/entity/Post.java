@@ -16,7 +16,6 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-@EntityListeners(AuditingEntityListener.class)
 public class Post extends BaseTime {
 
     @ManyToOne(fetch = FetchType.LAZY)
