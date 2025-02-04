@@ -82,7 +82,7 @@ public class ApiV1CommentController {
         );
 
         Comment comment = post.getCommentById(id);
-        if (!comment.getAuthor().getId().equals(writer.getId())) {
+        if (!comment.getAuthor().getId().equals(writer.getId()) && !writer.isAdmin()) {
             throw new ServiceException("403-1", "자신이 작성한 댓글만 수정 가능합니다.");
         }
 
@@ -103,8 +103,10 @@ public class ApiV1CommentController {
         );
 
         Comment comment = post.getCommentById(id);
-        if (!comment.getAuthor().getId().equals(writer.getId())) {
-            throw new ServiceException("403-1", "자신이 작성한 댓글만 삭제 가능합니다.");
+
+
+        if (!comment.getAuthor().getId().equals(writer.getId()) && !writer.isAdmin()) {
+            throw new ServiceException("403-1", "자신이 작성한 댓글만 수정 가능합니다.");
         }
 
         post.deleteComment(comment);
