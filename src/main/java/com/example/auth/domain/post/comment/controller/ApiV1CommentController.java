@@ -50,7 +50,7 @@ public class ApiV1CommentController {
                 "%d 번 댓글 작성이 완료되었습니다.".formatted(comment.getId()));
     }
 
-    public Comment _write(long postId,Member writer,String content) {
+    public Comment _write(long postId, Member writer, String content) {
         Post post = postService.getItem(postId).orElseThrow(
                 () -> new ServiceException("404-1", "존재하지 않는 게시글입니다.")
         );
@@ -66,5 +66,29 @@ public class ApiV1CommentController {
 
         Comment comment = post.getCommentById(id);
         return new CommentDto(comment);
+    }
+
+    record ModifyReqBody(String content) {
+    }
+
+    @PutMapping("/{id}")
+    @Transactional
+    public RsData<Void> modify(@PathVariable long postId, @PathVariable long id, @RequestBody ModifyReqBody body) {
+        Member writer = rq.getAuthenticatedWriter();
+
+        Post post = postService.getItem(postId).orElseThrow(
+                () -> new ServiceException("404-1", "존재하지 않는 게시글입니다.")
+        );
+
+        Comment comment = post.getCommentById(id);
+        if (!comment.getAuthor().getId().equals(writer.getId())) {
+            throw new ServiceException("403-1", "자신이 작성한 댓글만 수정 가능합니다.");
+        }
+
+        comment.modify(body.content());
+
+        return new RsData<>("201-1",
+                "%d번 댓글이 수정되었습니다.".formatted(id));
+
     }
 }
