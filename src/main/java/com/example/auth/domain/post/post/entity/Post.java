@@ -3,6 +3,7 @@ package com.example.auth.domain.post.post.entity;
 import com.example.auth.domain.member.member.entity.Member;
 import com.example.auth.domain.post.comment.entity.Comment;
 import com.example.auth.global.entity.BaseTime;
+import com.example.auth.global.exception.ServiceException;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -35,5 +36,14 @@ public class Post extends BaseTime {
                 .build();
 
         this.comments.add(comment);
+    }
+
+    public Comment getCommentById(long commentId) {
+        return comments.stream()
+                .filter(c -> c.getId() == commentId)
+                .findFirst()
+                .orElseThrow(
+                        () -> new ServiceException("404-2", "해당 댓글은 존재하지 않습니다.")
+                );
     }
 }
