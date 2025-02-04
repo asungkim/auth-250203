@@ -60,11 +60,10 @@ public class ApiV1PostController {
         Member writer = rq.getAuthenticatedWriter();
         Post post = postService.getItem(id).get();
 
-        if (!post.getAuthor().getId().equals(writer.getId())) {
-            throw new ServiceException("403-1", "자신이 작성한 글만 수정 가능합니다.");
-        }
-        postService.delete(post);
+        if (post.canDelete(writer)) {
+            postService.delete(post);
 
+        }
         return new RsData<>(
                 "204-1",
                 "%d번 글 삭제가 완료되었습니다.".formatted(id)
@@ -82,11 +81,9 @@ public class ApiV1PostController {
         Member writer = rq.getAuthenticatedWriter();
         Post post = postService.getItem(id).get();
 
-        if (!post.getAuthor().getId().equals(writer.getId())) {
-            throw new ServiceException("403-1", "자신이 작성한 글만 수정 가능합니다.");
+        if (post.canModify(writer)) {
+            postService.modify(post, body.title(), body.content());
         }
-
-        postService.modify(post, body.title(), body.content());
         return new RsData<>(
                 "200-1",
                 "%d번 글 수정이 완료되었습니다.".formatted(id)
