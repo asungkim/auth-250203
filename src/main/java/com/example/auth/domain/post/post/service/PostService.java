@@ -2,6 +2,7 @@ package com.example.auth.domain.post.post.service;
 
 import com.example.auth.domain.member.member.entity.Member;
 import com.example.auth.domain.member.member.repository.MemberRepository;
+import com.example.auth.domain.post.comment.dto.CommentDto;
 import com.example.auth.domain.post.post.entity.Post;
 import com.example.auth.domain.post.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -51,4 +52,6 @@ public class PostService {
         post.setTitle(title);
         post.setContent(content);
     }
+
+
 }
