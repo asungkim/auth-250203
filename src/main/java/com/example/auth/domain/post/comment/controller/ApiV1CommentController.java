@@ -8,15 +8,12 @@ import com.example.auth.domain.post.post.service.PostService;
 import com.example.auth.global.Rq;
 import com.example.auth.global.dto.RsData;
 import com.example.auth.global.exception.ServiceException;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -25,7 +22,6 @@ public class ApiV1CommentController {
 
     private final PostService postService;
     private final Rq rq;
-    private final EntityManager em;
 
     @GetMapping()
     public List<CommentDto> getItems(@PathVariable long postId) {
@@ -48,8 +44,7 @@ public class ApiV1CommentController {
         Member writer = rq.getAuthenticatedWriter();
         Comment comment = _write(postId, writer, body.content());
 
-        // DB 반영
-        em.flush(); // commit
+        postService.flush();
 
         return new RsData<>("201-1",
                 "%d 번 댓글 작성이 완료되었습니다.".formatted(comment.getId()));
