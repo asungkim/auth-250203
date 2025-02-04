@@ -49,4 +49,8 @@ public class Post extends BaseTime {
                         () -> new ServiceException("404-2", "해당 댓글은 존재하지 않습니다.")
                 );
     }
+
+    public void deleteComment(Comment comment) {
+        this.comments.remove(comment);
+    }
 }
