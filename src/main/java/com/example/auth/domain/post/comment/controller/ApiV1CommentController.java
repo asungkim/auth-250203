@@ -1,6 +1,7 @@
 package com.example.auth.domain.post.comment.controller;
 
 import com.example.auth.domain.member.member.entity.Member;
+import com.example.auth.domain.member.member.service.MemberService;
 import com.example.auth.domain.post.comment.dto.CommentDto;
 import com.example.auth.domain.post.comment.entity.Comment;
 import com.example.auth.domain.post.post.entity.Post;
@@ -89,6 +90,27 @@ public class ApiV1CommentController {
 
         return new RsData<>("201-1",
                 "%d번 댓글이 수정되었습니다.".formatted(id));
+
+    }
+
+    @DeleteMapping("/{id}")
+    @Transactional
+    public RsData<Void> delete(@PathVariable long postId, @PathVariable long id) {
+
+        Member writer = rq.getAuthenticatedWriter();
+        Post post = postService.getItem(postId).orElseThrow(
+                () -> new ServiceException("404-1", "존재하지 않는 게시글입니다.")
+        );
+
+        Comment comment = post.getCommentById(id);
+        if (!comment.getAuthor().getId().equals(writer.getId())) {
+            throw new ServiceException("403-1", "자신이 작성한 댓글만 삭제 가능합니다.");
+        }
+
+        post.deleteComment(comment);
+
+        return new RsData<>("201-1",
+                "%d번 댓글이 삭제되었습니다.".formatted(id));
 
     }
 }
