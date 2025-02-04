@@ -7,6 +7,7 @@ import com.example.auth.global.exception.ServiceException;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +29,7 @@ public class Post extends BaseTime {
     @Builder.Default
     private List<Comment> comments = new ArrayList<>();
 
-    public void addComment(Member author, String content) {
+    public Comment addComment(Member author, String content) {
         Comment comment = Comment.builder()
                 .post(this)
                 .author(author)
@@ -36,6 +37,8 @@ public class Post extends BaseTime {
                 .build();
 
         this.comments.add(comment);
+
+        return comment;
     }
 
     public Comment getCommentById(long commentId) {

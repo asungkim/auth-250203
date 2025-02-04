@@ -54,4 +54,7 @@ public class PostService {
     }
 
 
+    public void writeComment(Post post, String content) {
+        post.addComment(post.getAuthor(),content);
+    }
 }
