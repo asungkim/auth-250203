@@ -2,6 +2,7 @@ package com.example.auth.global;
 
 import com.example.auth.domain.member.member.entity.Member;
 import com.example.auth.domain.member.member.service.MemberService;
+import com.example.auth.domain.post.post.entity.Post;
 import com.example.auth.domain.post.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,10 +57,14 @@ public class BaseInitData {
         Member user1 = memberService.findByUsername("user1").get();
         Member user2 = memberService.findByUsername("user2").get();
 
+        Post p1 = postService.write(user1, "축구 하실분 모집합니다.", "저녁 6시까지 모여주세요.");
+        p1.addComment(user1,"저 참석하겠습니다.");
+        p1.addComment(user1,"공격수 자리 있나요?");
 
-        postService.write(user1, "title1", "content1");
-        postService.write(user1, "title2", "content2");
-        postService.write(user2, "title3", "content3");
+        Post p2 = postService.write(user1, "농구 하실분 모집합니다.", "3명 모집");
+        p2.addComment(user1,"저 갈게요.");
+
+        postService.write(user2, "title3.", "content3.");
 
     }
 

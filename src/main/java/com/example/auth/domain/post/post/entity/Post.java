@@ -25,6 +25,16 @@ public class Post extends BaseTime {
     private String content;
 
     @OneToMany(mappedBy = "post", cascade = {CascadeType.REMOVE, CascadeType.PERSIST}, orphanRemoval = true)
+    @Builder.Default
     private List<Comment> comments = new ArrayList<>();
 
+    public void addComment(Member author, String content) {
+        Comment comment = Comment.builder()
+                .post(this)
+                .author(author)
+                .content(content)
+                .build();
+
+        this.comments.add(comment);
+    }
 }
