@@ -3,6 +3,7 @@ package com.example.auth.domain.member.member.controller;
 import com.example.auth.domain.member.member.dto.MemberDto;
 import com.example.auth.domain.member.member.entity.Member;
 import com.example.auth.domain.member.member.service.MemberService;
+import com.example.auth.global.Rq;
 import com.example.auth.global.dto.RsData;
 import com.example.auth.global.exception.ServiceException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,7 +21,7 @@ import java.util.Optional;
 public class ApiV1MemberController {
 
     private final MemberService memberService;
-    private final HttpServletRequest request;
+    private final Rq rq;
 
     record JoinReqBody(@NotBlank @Length(min = 3) String username,
                        @NotBlank @Length(min = 3) String password,
@@ -70,7 +71,7 @@ public class ApiV1MemberController {
 
     @GetMapping("/me")
     public RsData<MemberDto> me() {
-        Member writer = getAuthenticatedWriter();
+        Member writer = rq.getAuthenticatedWriter();
 
         return new RsData<>(
                 "200-1",
@@ -79,16 +80,4 @@ public class ApiV1MemberController {
         );
     }
 
-    private Member getAuthenticatedWriter() {
-        String authorizationValue = request.getHeader("Authorization");
-
-        String apiKey = authorizationValue.replaceAll("Bearer ","");
-        Optional<Member> opWriter = memberService.findByApiKey(apiKey);
-
-        if (opWriter.isEmpty()) {
-            throw new ServiceException("401-1", "비밀번호가 일치하지 않습니다.");
-        }
-
-        return opWriter.get();
-    }
 }
